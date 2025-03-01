@@ -8,7 +8,7 @@ files = [
 ]
 
 dfs = []
-array = ["TBI", "SCI", "Both"]
+array = ["Both", "SCI", "TBI"]
 for i, f in enumerate(files):
     df = pd.read_csv(f)
     df['source'] = array[i]
