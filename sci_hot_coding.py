@@ -1,8 +1,8 @@
 import pandas as pd
 
 
-data_file = "/Users/siva/Desktop/TBI AND SCI/SCI-TBI-OUTCOME-ML-PREDICTION/combined copy 2.csv"
-icd_file = "/Users/siva/Desktop/TBI AND SCI/SCI-TBI-OUTCOME-ML-PREDICTION/Elixhauser_comorbiditiesICD10.csv"
+data_file = "combined.csv"
+icd_file = "Elixhauser_comorbiditiesICD10.csv"
 
 
 df = pd.read_csv(data_file, dtype=str, low_memory=False)
@@ -170,24 +170,8 @@ for index, row in df[icd_columns].iterrows():
             if code in codes:  # Exact match
                 df.at[index, category] = 1 
 
- 
-   
 
 
+df.to_csv("sci_coded.csv", index=False)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-df.to_csv("updated_combined.csv", index=False)
-
-print("Processing complete. Saved to 'updated_combined.csv'.")
+print("Processing complete. Saved to 'tbi_coded.csv'.")
