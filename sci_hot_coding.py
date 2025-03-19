@@ -5,7 +5,7 @@ data_file = "combined.csv"
 icd_file = "Elixhauser_comorbiditiesICD10.csv"
 
 
-df = pd.read_csv(data_file, dtype=str, low_memory=False)
+df = pd.read_csv(data_file, low_memory=False)
 
 icd10_code = {}
 with open(icd_file, "r", encoding="utf-8") as file:
