@@ -174,4 +174,4 @@ for index, row in df[icd_columns].iterrows():
 
 df.to_csv("sci_coded.csv", index=False)
 
-print("Processing complete. Saved to 'tbi_coded.csv'.")
+print("Processing complete. Saved to 'sci_coded.csv'.")
