@@ -62,3 +62,25 @@ for index, row in df.dropna(how="all").iterrows():
 df.to_csv("updated_combined.csv", index=False)
 
 print("Processing complete. Saved to 'updated_combined.csv'.")
+
+data_file = "updated_combined.csv"
+
+
+df = pd.read_csv(data_file, dtype=str, low_memory=False)
+
+
+
+# Drop columns dynamically using loops
+for i in range(1, 41):
+    df.drop(f"I10_DX{i}", axis=1, errors='ignore', inplace=True)
+
+df = df[df['DISPUNIFORM'] != 'undefined']
+
+#our input datafram
+X = df.drop(columns=['DISPUNIFORM']).iloc[:, :]
+Y= df['DISPUNIFORM']
+
+for n_size in [100, 200, 300,500]:
+    model = RandomForestClassifier(n_estimators = n_size)
+    cv_scores = cross_val_score(model, X, Y, cv=5)
+    print(np.mean(cv_scores))
