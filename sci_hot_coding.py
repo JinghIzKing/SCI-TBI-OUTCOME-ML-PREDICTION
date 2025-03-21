@@ -44,6 +44,7 @@ SCI = {
     "Injury of nerve root of cervical spine" : ["S142"],
     "Injury of brachial plexus" : ["S143", "S144", "S145", "S148", "S149"],
 
+    "Lumbar and Sacral" : ["S34"],
     "Concussion and edema of lumbar and sacral spinal cord" : ["S3401"],
     "Concussion and edema of sacral spinal cord" : ["S3402"],
     "Other and unspecified injury of lumbar and sacral spinal cord" : ["S3410"], 
@@ -53,6 +54,7 @@ SCI = {
     "Injury of nerve root of lumbar and sacral spine" : ["S342"],
     "Injuries of Nerves in the Lower Back, Pelvis, and Abdomen" : ["S343", "S344", "S345", "S346", "S348", "S349"],
 
+    "Thoracic" : ["S24"],
     "Concussion and edema of thoracic spinal cord" : ["S240"],
     "Other and unspecified injuries of thoracic spinal cord": ["S2410"],
     "Complete lesion of thoracic spinal cord" : ["S2411"],
