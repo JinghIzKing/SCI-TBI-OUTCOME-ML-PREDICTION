@@ -13,7 +13,7 @@ for i in range(1, 41):
     df.drop(f"I10_DX{i}", axis=1, errors='ignore', inplace=True)
 
 df = df[df['DISPUNIFORM'] != 'undefined']
-# df = df.drop(columns= ['DRG', 'DRGVER', 'DRG_NoPOA', 'HOSP_NIS', 'KEY_NIS', 'APRDRG', 'NIS_STRATUM'])
+#df = df.drop(columns= ['DRG', 'DRGVER', 'DRG_NoPOA', 'HOSP_NIS', 'KEY_NIS', 'APRDRG', 'NIS_STRATUM'])
 # df.to_csv("updated_combined.csv", index=False)
 
 df.columns = df.columns.str.replace(r'[^\w]', '_', regex=True)  # Replace spaces and special characters
@@ -47,10 +47,15 @@ list = df.columns[22 : 107].tolist()
 categorical_columns = ['AMONTH', 'AWEEKEND','DIED', 'DQTR', 'FEMALE', 'HCUP_ED', 'HOSP_DIVISION', 'MDC', 'MDC_NoPOA', 'PAY1', 'PL_NCHS', 'RACE','ZIPINC_QRTL', 'source', 'ELECTIVE', 'TRAN_IN', 'TRAN_OUT']
 
 list =  categorical_columns + list
+oof_preds = []
+oof_labels = []
+fold_scores = []
+
 
 
 
 for fold, (train_index, val_index) in enumerate(k.split(X)):
+    print(f"Training on fold {fold+1}...")
     X_train, X_val = X.iloc[train_index], X.iloc[val_index]
     y_train, y_val = y.iloc[train_index], y.iloc[val_index]
 
@@ -71,9 +76,18 @@ for fold, (train_index, val_index) in enumerate(k.split(X)):
     training_data = lgb.Dataset(X_train, label=y_train, categorical_feature=list)
     validation_data = lgb.Dataset(X_val, label=y_val, categorical_feature=list, reference=training_data)
 
-    bst = lgb.train(params, training_data, num_boost_round=1000, valid_sets=[validation_data])
+    bst = lgb.train(params, training_data, num_boost_round=1000, valid_sets=[validation_data] )
+    
+    y_pred = bst.predict(X_val)
+    oof_preds.extend(y_pred)
+    oof_labels.extend(y_val)
 
-    feature_importance_df[f'Fold_{fold+1}'] = bst.feature_importance(importance_type='weight')
+    fold_accuracy = accuracy_score(y_val, (y_pred > 0.5).astype(int))
+    fold_scores.append(fold_accuracy)
+    print(f"Fold {fold+1} Accuracy: {fold_accuracy:.4f}")
+
+
+    feature_importance_df[f'Fold_{fold+1}'] = bst.feature_importance(importance_type='gain')
 
 
 feature_importance_df["Mean_Importance"] = feature_importance_df.iloc[: , 1:].mean(axis=1)
@@ -87,8 +101,9 @@ plt.ylabel("Feature")
 plt.title("Top 20 Important Features (LightGBM)")
 plt.show()
 
-print(feature_importance_df[['Feature', 'Mean_Importance']].head(10))
-
+print(feature_importance_df[['Feature', 'Mean_Importance']])
+overall_accuracy = accuracy_score(oof_labels, (np.array(oof_preds) > 0.5).astype(int))
+print(f"\nOverall Accuracy Across {k.get_n_splits()} Folds: {overall_accuracy:.4f}")
 
 
 
