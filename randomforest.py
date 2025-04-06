@@ -22,10 +22,17 @@ df.rename(columns={df.columns[22]: "CHF"}, inplace=True)
 
 print(df.columns[22], df.columns[97])
 
+df = df.drop(columns = ['TRAN_IN', 'TRAN_OUT', 'DIED'])
+
+sample_size = 7000
+
+df = df.groupby('source').apply(
+    lambda x: x.sample(n=sample_size, random_state=42)
+).reset_index(drop=True)
+
 X = df.drop(columns = ['DISPUNIFORM'])
 y = df['DISPUNIFORM']
 print(y)
-
 
 
 
@@ -43,8 +50,8 @@ k = KFold(n_splits = 5, shuffle = True, random_state = 42)
 feature_importance_df = pd.DataFrame()
 feature_importance_df['Feature'] = X.columns
 
-list = df.columns[22 : 107].tolist()
-categorical_columns = ['AMONTH', 'AWEEKEND','DIED', 'DQTR', 'FEMALE', 'HCUP_ED', 'HOSP_DIVISION', 'MDC', 'MDC_NoPOA', 'PAY1', 'PL_NCHS', 'RACE','ZIPINC_QRTL', 'source', 'ELECTIVE', 'TRAN_IN', 'TRAN_OUT']
+list = df.columns[19 : 104].tolist()
+categorical_columns = ['AMONTH', 'AWEEKEND', 'DQTR', 'FEMALE', 'HCUP_ED', 'HOSP_DIVISION', 'MDC', 'MDC_NoPOA', 'PAY1', 'PL_NCHS', 'RACE','ZIPINC_QRTL', 'source', 'ELECTIVE']
 
 list =  categorical_columns + list
 oof_preds = []
@@ -101,6 +108,8 @@ plt.ylabel("Feature")
 plt.title("Top 20 Important Features (LightGBM)")
 plt.show()
 
+
+pd.set_option('display.max_rows', 104)
 print(feature_importance_df[['Feature', 'Mean_Importance']])
 overall_accuracy = accuracy_score(oof_labels, (np.array(oof_preds) > 0.5).astype(int))
 print(f"\nOverall Accuracy Across {k.get_n_splits()} Folds: {overall_accuracy:.4f}")
