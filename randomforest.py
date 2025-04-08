@@ -5,6 +5,7 @@ from sklearn.metrics import accuracy_score
 import numpy as np
 import re 
 import matplotlib.pyplot as plt
+import pickle
 
 data_file = "updated_combined.csv"
 
@@ -101,8 +102,9 @@ feature_importance_df["Mean_Importance"] = feature_importance_df.iloc[: , 1:].me
 feature_importance_df = feature_importance_df.sort_values(by="Mean_Importance", ascending=False)
 
 plt.figure(figsize=(12,6))
-plt.barh(feature_importance_df['Feature'][:20], feature_importance_df['Mean_Importance'][:20])
-plt.gca().invert_yaxis()
+plt.plot(feature_importance_df['Feature'], feature_importance_df['Mean_Importance'].values)
+# plt.barh(feature_importance_df['Feature'][:20], feature_importance_df['Mean_Importance'][:20])
+# plt.gca().invert_yaxis()
 plt.xlabel("Feature Importance (Gain)")
 plt.ylabel("Feature")
 plt.title("Top 20 Important Features (LightGBM)")
@@ -115,8 +117,13 @@ overall_accuracy = accuracy_score(oof_labels, (np.array(oof_preds) > 0.5).astype
 print(f"\nOverall Accuracy Across {k.get_n_splits()} Folds: {overall_accuracy:.4f}")
 
 
+#Dropping values 
+print("Num of rows before:", feature_importance_df.shape[0])
+feature_importance_df["Cumulative_Importance"] = feature_importance_df["Mean_Importance"].cumsum() / feature_importance_df["Mean_Importance"].sum()
+feature_importance_df = feature_importance_df[feature_importance_df["Cumulative_Importance"] <= 0.99]
+print("Num of rows after drop:", feature_importance_df.shape[0])
+print(feature_importance_df[['Feature', 'Mean_Importance', 'Cumulative_Importance']])
 
 
-
-
-
+with open('feature_importance_df.pkl', 'wb') as f:
+    pickle.dump(feature_importance_df, f)
