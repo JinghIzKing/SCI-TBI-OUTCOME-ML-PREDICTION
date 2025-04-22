@@ -1,5 +1,5 @@
 library(dplyr)
-df = read.csv('updated_combined.csv')
+df = read.csv('hot_encoded.csv')
 
 table(df$source)
 
@@ -125,7 +125,7 @@ for (f in features) {
 
 final_results_df <- bind_rows(all_results)
 
-write_xlsx(final_results_df, "output8.xlsx")
+write_xlsx(final_results_df, "output1.xlsx")
 
 
 
