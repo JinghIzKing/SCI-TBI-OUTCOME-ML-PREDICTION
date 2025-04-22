@@ -1,9 +1,9 @@
 library(dplyr)
-df = read.csv('/Users/siva/Desktop/updated_combined.csv')
+df = read.csv('updated_combined.csv')
 
 table(df$source)
 
- 
+colnames(df)
 
 class(df$Injury.of.peripheral.nerves.of.thorax)
 
@@ -57,65 +57,52 @@ Pfunction <- function(df, col_name, value) {
   ))
 }
 
-
 features <- c(
-  "ValD", "PulmCD", "PVD", "HTNU", "HTNC", "Pa", "OND", "CPD", "DMU", "DMC", "HypoT", 
-  "RF", "LD", "PUD", "AIDS", "Lym", "Mets", "STU", "RA", "Coag", "Obe", "WL", "FED", 
-  "BLA", "DA", "AA", "DrugA", "Psych", "Dep", "Cervical", 
-  "Concussion.and.edema.of.cervical.spinal.cord", 
-  "Other.and.unspecified.injuries.of.cervical.spinal.cord", 
-  "Central.cord.syndrome.of.cervical.spinal.cord", 
-  "Anterior.cord.syndrome.of.cervical.spinal.cord", 
-  "Brown.Séquard.syndrome.of.cervical.spinal.cord", 
-  "Other.incomplete.lesions.of.cervical.spinal.cord", 
-  "Injury.of.nerve.root.of.cervical.spine", 
-  "Injury.of.brachial.plexus", 
-  "Concussion.and.edema.of.lumbar.and.sacral.spinal.cord", 
-  "Concussion.and.edema.of.sacral.spinal.cord", 
-  "Other.and.unspecified.injury.of.lumbar.and.sacral.spinal.cord", 
-  "Complete.lesion.of.lumbar.spinal.cord", 
-  "Incomplete.lesion.of.lumbar.spinal.cord", 
-  "Other.and.unspecified.injury.to.sacral.spinal.cord", 
-  "Injury.of.nerve.root.of.lumbar.and.sacral.spine", 
-  "Injuries.of.Nerves.in.the.Lower.Back..Pelvis..and.Abdomen", 
-  "Concussion.and.edema.of.thoracic.spinal.cord", 
-  "Other.and.unspecified.injuries.of.thoracic.spinal.cord", 
-  "Complete.lesion.of.thoracic.spinal.cord", 
-  "Anterior.cord.syndrome.of.thoracic.spinal.cord", 
-  "Brown.Séquard.syndrome.of.thoracic.spinal.cord", 
-  "Other.incomplete.lesions.of.thoracic.spinal.cord", 
-  "Injury.of.nerve.root.of.thoracic.spine", 
-  "Injury.of.peripheral.nerves.of.thorax", 
-  "Injury.of.thoracic.sympathetic.nervous.system", 
-  "Injury.of.other.specified.nerves.of.thorax", 
-  "Injury.of.unspecified.nerve.of.thorax", 
-  "Neurological.Complications", 
-  "Musculoskeletal...Mobility.Issues", 
-  "Pain...Discomfort", 
-  "Skin...Pressure.Related.Conditions", 
-  "Circulatory...Vascular.Issues", 
-  "Urological...Gastrointestinal.Issues", 
-  "Respiratory...Pulmonary.Issues", 
-  "Post.Surgical...Structural.Issues", 
-  "Mental.Health...Psychological.Impact", 
-  "Other.Regulatory.Issues", 
-  "Concussion", 
-  "Epidural.hemorrhage", 
-  "Unspecified.intracranial.injury", 
-  "Traumatic.cerebral.edema", 
-  "Diffuse.traumatic.brain.injury", 
-  "Traumatic.subdural.hemorrhage", 
-  "Traumatic.subarachnoid.hemorrhage", 
-  "Other.specified.intracranial.injuries", 
-  "Traumatic.brain.compression.and.herniation", 
-  "Focal.traumatic.brain.injury", 
-  "Surgical.Interventions", 
-  "Structural.Pathology", 
-  "Infectious.Pathology", 
-  "Hematologic.Pathology", 
-  "Neurological.Pathology.Acute", 
-  "Neurological.Pathology.Chronic.Progressive", 
-  "Emotional.Behavioral.Cognitive"
+  "X.CHF", "Arr", "ValD", "PulmCD", "PVD", "HTNU", "HTNC", "Pa", "OND", "CPD",
+  "DMU", "DMC", "HypoT", "RF", "LD", "PUD", "AIDS", "Lym", "Mets", "STU", "RA",
+  "Coag", "Obe", "WL", "FED", "BLA", "DA", "AA", "DrugA", "Psych", "Dep",
+  "Cervical", "Concussion.and.edema.of.cervical.spinal.cord",
+  "Other.and.unspecified.injuries.of.cervical.spinal.cord",
+  "X.Complete.lesion.of.cervical.spinal.cord",
+  "Central.cord.syndrome.of.cervical.spinal.cord",
+  "Anterior.cord.syndrome.of.cervical.spinal.cord",
+  "Brown.Séquard.syndrome.of.cervical.spinal.cord",
+  "Other.incomplete.lesions.of.cervical.spinal.cord",
+  "Injury.of.nerve.root.of.cervical.spine", "Injury.of.brachial.plexus",
+  "Injury.of.peripheral.nerves.of.neck", "Injury.of.cervical.sympathetic.nerves",
+  "X.Injury.of.other.specified.nerves.of.neck", "Injury.of.unspecified.nerves.of.neck",
+  "Lumbar.and.Sacral", "Concussion.and.edema.of.lumbar.and.sacral.spinal.cord",
+  "Concussion.and.edema.of.sacral.spinal.cord",
+  "Other.and.unspecified.injury.of.lumbar.and.sacral.spinal.cord",
+  "Complete.lesion.of.lumbar.spinal.cord", "Incomplete.lesion.of.lumbar.spinal.cord",
+  "Other.and.unspecified.injury.to.sacral.spinal.cord",
+  "Injury.of.nerve.root.of.lumbar.and.sacral.spine", "Injury.of.cauda.equina",
+  "Injury.of.lumbosacral.plexus",
+  "Injury.of.lumbar..sacral.and.pelvic.sympathetic.nerves",
+  "Injury.of.peripheral.nerve.s..at.abdomen..lower.back.and.pelvis.level",
+  "Injury.of.other.nerves.at.abdomen..lower.back.and.pelvis.level",
+  "Injury.of.unspecified.nerves.at.abdomen..lower.back.and.pelvis.level",
+  "Thoracic", "Concussion.and.edema.of.thoracic.spinal.cord",
+  "Other.and.unspecified.injuries.of.thoracic.spinal.cord",
+  "Complete.lesion.of.thoracic.spinal.cord", "Anterior.cord.syndrome.of.thoracic.spinal.cord",
+  "Brown.Séquard.syndrome.of.thoracic.spinal.cord",
+  "Other.incomplete.lesions.of.thoracic.spinal.cord",
+  "Injury.of.nerve.root.of.thoracic.spine", "Injury.of.peripheral.nerves.of.thorax",
+  "Injury.of.thoracic.sympathetic.nervous.system",
+  "Injury.of.other.specified.nerves.of.thorax", "Injury.of.unspecified.nerve.of.thorax",
+  "Neurological.Complications", "Musculoskeletal...Mobility.Issues",
+  "Pain...Discomfort", "Skin...Pressure.Related.Conditions",
+  "Circulatory...Vascular.Issues", "Urological...Gastrointestinal.Issues",
+  "Respiratory...Pulmonary.Issues", "Post.Surgical...Structural.Issues",
+  "Mental.Health...Psychological.Impact", "Other.Regulatory.Issues",
+  "Sexual...Reproductive.Issues", "Concussion", "Epidural.hemorrhage",
+  "Unspecified.intracranial.injury", "Traumatic.cerebral.edema",
+  "Diffuse.traumatic.brain.injury", "Traumatic.subdural.hemorrhage",
+  "Traumatic.subarachnoid.hemorrhage", "Other.specified.intracranial.injuries",
+  "Traumatic.brain.compression.and.herniation", "Focal.traumatic.brain.injury",
+  "Surgical.Interventions", "Structural.Pathology", "Infectious.Pathology",
+  "Hematologic.Pathology", "Neurological.Pathology.Acute",
+  "Neurological.Pathology.Chronic.Progressive", "Emotional.Behavioral.Cognitive"
 )
 
 library(writexl)
@@ -134,10 +121,12 @@ for (f in features) {
   
   all_results[[f]] <- row
 }
- 
+
 
 final_results_df <- bind_rows(all_results)
 
 write_xlsx(final_results_df, "output8.xlsx")
+
+
 
 
