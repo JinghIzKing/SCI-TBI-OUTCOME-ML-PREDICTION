@@ -7,53 +7,37 @@ colnames(df)
 
 class(df$Injury.of.peripheral.nerves.of.thorax)
 
-Pfunction <- function(df, col_name, value) {
-
-  totalTBI <- 481535
-  totalSCI <- 63843
-  totalBoth <- 7072
+Pfunction <- function(df, col_name, value) {  
+  totalTBI <- 473123  
+  totalSCI <- 56177  
+  totalBoth <- 23150  
   
- 
-  value_countTBI <- df %>% filter(source == "TBI" & !!sym(col_name) == value) %>% count()
-  print(value_countTBI)
-  value_countSCI <- df %>% filter(source == "SCI" & !!sym(col_name) == value) %>% count()
-  print(value_countSCI)
-  value_countBoth <- df %>% filter(source == "Both" & !!sym(col_name) == value) %>% count()
-  print(value_countBoth)
-  print('count end')
-
-  cat("Count TBI:", value_countTBI$n, "Proportion TBI:", value_countTBI$n / totalTBI, "\n")
-  cat("Count SCI:", value_countSCI$n, "Proportion SCI:", value_countSCI$n / totalSCI, "\n")
-  cat("Count Both:", value_countBoth$n, "Proportion Both:", value_countBoth$n / totalBoth, "\n")
+  value_countTBI <- df %>% filter(source == "TBI", !!sym(col_name) == value) %>% count()
+  value_countSCI <- df %>% filter(source == "SCI", !!sym(col_name) == value) %>% count()
+  value_countBoth <- df %>% filter(source == "Both", !!sym(col_name) == value) %>% count()
   
-  p1_TBI <- value_countTBI$n / totalTBI
-  p1_SCI <- value_countSCI$n / totalSCI
-  p1_Both <- value_countBoth$n / totalBoth
+  good_n_TBI <- ifelse(nrow(value_countTBI) == 0, 0, value_countTBI$n)
+  good_n_SCI <- ifelse(nrow(value_countSCI) == 0, 0, value_countSCI$n)
+  good_n_Both <- ifelse(nrow(value_countBoth) == 0, 0, value_countBoth$n)
   
-  p_TBI_SCI <- (value_countTBI$n + value_countSCI$n) / (totalTBI + totalSCI)
-  p_TBI_Both <- (value_countTBI$n + value_countBoth$n) / (totalTBI + totalBoth)
-  p_SCI_Both <- (value_countSCI$n + value_countBoth$n) / (totalSCI + totalBoth)
+  # Run proportion tests
+  test_TBI_SCI <- prop.test(x = c(good_n_TBI, good_n_SCI), n = c(totalTBI, totalSCI), correct = FALSE)
+  test_TBI_Both <- prop.test(x = c(good_n_TBI, good_n_Both), n = c(totalTBI, totalBoth), correct = FALSE)
+  test_SCI_Both <- prop.test(x = c(good_n_SCI, good_n_Both), n = c(totalSCI, totalBoth), correct = FALSE)
   
-  SE_TBI_SCI <- sqrt(p_TBI_SCI * (1 - p_TBI_SCI) * ((1 / totalTBI) + (1 / totalSCI)))
-  SE_TBI_Both <- sqrt(p_TBI_Both * (1 - p_TBI_Both) * ((1 / totalTBI) + (1 / totalBoth)))
-  SE_SCI_Both <- sqrt(p_SCI_Both * (1 - p_SCI_Both) * ((1 / totalSCI) + (1 / totalBoth)))
-  
-  z_TBI_SCI <- (p1_TBI - p1_SCI) / SE_TBI_SCI
-  z_TBI_Both <- (p1_TBI - p1_Both) / SE_TBI_Both
-  z_SCI_Both <- (p1_SCI - p1_Both) / SE_SCI_Both
-  
-  p_value_TBI_SCI <- 2 * (1 - pnorm(abs(z_TBI_SCI)))
-  p_value_TBI_Both <- 2 * (1 - pnorm(abs(z_TBI_Both)))
-  p_value_SCI_Both <- 2 * (1 - pnorm(abs(z_SCI_Both)))
-  feature = col_name
-  return(list(
-    feature = feature,
-    TBI = value_countTBI$n,
-    SCI = value_countSCI$n,
-    Both = value_countBoth$n,
-    p_value_TBI_SCI = p_value_TBI_SCI,
-    p_value_TBI_Both = p_value_TBI_Both,
-    p_value_SCI_Both = p_value_SCI_Both
+  # Return results in a data.frame
+  return(data.frame(
+    feature = col_name,
+    value = value,
+    count_TBI = good_n_TBI,
+    count_SCI = good_n_SCI,
+    count_Both = good_n_Both,
+    prop_TBI = good_n_TBI / totalTBI,
+    prop_SCI = good_n_SCI / totalSCI,
+    prop_Both = good_n_Both / totalBoth,
+    p_value_TBI_SCI = test_TBI_SCI$p.value,
+    p_value_TBI_Both = test_TBI_Both$p.value,
+    p_value_SCI_Both = test_SCI_Both$p.value
   ))
 }
 
@@ -125,7 +109,7 @@ for (f in features) {
 
 final_results_df <- bind_rows(all_results)
 
-write_xlsx(final_results_df, "output1.xlsx")
+write_xlsx(final_results_df, "output1.2.xlsx")
 
 
 
