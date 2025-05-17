@@ -133,7 +133,6 @@ for cat, lst in sci_dx.items():
         df[dx] = 0
 for cat in sci_sym_cat_dict.keys():
     df[cat] = 0
-
 # GO THROUGH ELIXHAUSER COMORBIDITIES AND CODE
 icd_columns = [col for col in df.columns if col.startswith("I10_DX")]
 
