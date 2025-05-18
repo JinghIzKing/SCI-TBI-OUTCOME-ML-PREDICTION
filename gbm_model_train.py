@@ -8,7 +8,6 @@ from sklearn.metrics import roc_auc_score
 import matplotlib.pylab as plt
 import shap
 from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import accuracy_score
 
 # READ ENCODED DATA
 df = pd.read_csv('hot_encoded.csv', encoding="utf-8", low_memory=False)
@@ -67,10 +66,12 @@ params = {
 }
 
 # RUNNING STRATIFIED K-FOLD CROSS VALIDATION
+fold_gain_df = pd.DataFrame()
+i = 1
 for train_index, test_index in skf.split(x, y):
-    print("Start of New Fold:")
+    print("Training Fold", i)
     x_train, x_test = x.iloc[train_index], x.iloc[test_index]
-    y_train, y_test = y[train_index], y[test_index]
+    y_train, y_test = y.iloc[train_index], y.iloc[test_index]
 
     # CREATE TRAIN AND TEST GBM DATASETS
     train_data = lgb.Dataset(x_train, label=y_train, weight=weights.loc[x_train.index])
@@ -88,15 +89,34 @@ for train_index, test_index in skf.split(x, y):
     auc_scores.append(auc)
     print(f"Fold AUC: {auc:.4f}")
 
+    # STORE FOLD GAIN VALUES
+    importance = fold_model.feature_importance(importance_type='gain')
+    fold_gbm_features = fold_model.feature_name()
+    fold_gain_df['features'] = fold_gbm_features
+    fold_gain_df[i] = importance
+    print("Fold Feature Order:", fold_gbm_features)
+    print("Fold Gain Values", importance)
+    i += 1
+
 # CALCULATE AVERAGE ACCURACY ACROSS ALL FOLDS
+print("Cross Validation Complete.")
 print("Auc Metrics:", auc_scores)
 average_auc = np.mean(auc_scores)
 print(f'Average Auc: {average_auc:.4f}')
 
 # FEATURE SELECTION
-
+print("Starting Feature Selection:")
+fold_gain_df['mean_gain'] = fold_gain_df.drop(columns=['features']).mean(axis=1)
+fold_gain_df_sorted = fold_gain_df.sort_values(by='mean_gain', ascending=False)
+total_gain = fold_gain_df_sorted['mean_gain'].sum()
+fold_gain_df_sorted['cumulative_gain'] = fold_gain_df_sorted['mean_gain'].cumsum() / total_gain
+print("Sorted cumsums for all features:", fold_gain_df_sorted)
+selected_features = fold_gain_df_sorted[fold_gain_df_sorted['cumulative_gain'] <= 0.95]['features'].tolist()
+print("Selected Features:", selected_features)
+x = df.loc[:, selected_features]
 
 # CREATE FINAL TRAIN DATA WITH STRATIFIED SAMPLE
+print("Starting Final Model Training:")
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, stratify=y, random_state=42)
 print(x_train.shape, x_test.shape, y_train.shape, y_test.shape)
 
@@ -109,12 +129,16 @@ init_lgbm_model = lgb.train(params, train_gbm_dataset, valid_sets=[test_gbm_data
                             callbacks=[lgb.early_stopping(stopping_rounds=50),])
 
 # COMPUTE & VISUALIZE SHAP VALUES FOR FINAL GBM MODEL
+print("Starting SHAP Calculations:")
 shap_gbm_explain = shap.TreeExplainer(init_lgbm_model)
 shap_values = shap_gbm_explain.shap_values(x_test)
+print("Showing SHAP Plot 1:")
 shap.summary_plot(shap_values, x_test, plot_type="bar")
+print("Showing SHAP Plot 2:")
 shap.summary_plot(shap_values, x_test)
 
 # SAVING FINAL SHAP VALUES TO TABLE
+print("Saving SHAP Table:")
 shap_df = pd.DataFrame(data={
     'feature': x_test.columns,
     'mean_abs_shap': np.abs(shap_values).mean(axis=0)
@@ -123,18 +147,20 @@ shap_df = pd.DataFrame(data={
 shap_df.to_csv("SHAP_Table3.csv", index=False)
 
 # VISUALIZE FINAL GAIN VALUES FOR DISTRIBUTION OF FEATURE IMPORTANCE
-init_lgbm_model.save_model("lightgbm_dispuniform_model_init.txt")
+print("Starting Gain Calculations:")
 importance = init_lgbm_model.feature_importance(importance_type='gain')
 gbm_features = init_lgbm_model.feature_name()
 feat_imp_df = pd.DataFrame({
     "feature": gbm_features,
     "importance": importance
 }).sort_values(by="importance", ascending=False)
+print("Showing Gain Plot 1:")
 lgb.plot_importance(init_lgbm_model, max_num_features=150, importance_type='gain')
 plt.title("Top 150 Important Features")
 plt.show()
 
 # SAVING FINAL GAIN TABLE 3
+print("Saving Gain Table:")
 feat_imp_df.to_csv("Gain_Table3.csv", index=False)
 
 # PREDICTING WITH FINAL MODEL
@@ -143,3 +169,8 @@ y_test_pred = init_lgbm_model.predict(x_test)
 
 print("AUC Train: {:.4f}\nAUC Test: {:.4f}".format(roc_auc_score(y_train, y_train_pred),
                                                    roc_auc_score(y_test, y_test_pred)))
+
+# SAVE FINAL MODEL
+print("Saving Final Model:")
+init_lgbm_model.save_model("lightgbm_dispuniform_model_init.txt")
+print("woohoo :)")
