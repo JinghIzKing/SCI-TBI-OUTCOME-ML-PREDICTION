@@ -138,9 +138,9 @@ print("Starting SHAP Calculations:")
 shap_gbm_explain = shap.TreeExplainer(init_lgbm_model)
 shap_values = shap_gbm_explain.shap_values(x_test)
 print("Showing SHAP Plot 1:")
-shap.summary_plot(shap_values, x_test, plot_type="bar")
+shap.summary_plot(shap_values, x_test, plot_type="bar", max_display=len(x_test.columns))
 print("Showing SHAP Plot 2:")
-shap.summary_plot(shap_values, x_test)
+shap.summary_plot(shap_values, x_test, max_display=len(x_test.columns))
 
 # SAVING FINAL SHAP VALUES TO TABLE
 print("Saving SHAP Table:")
