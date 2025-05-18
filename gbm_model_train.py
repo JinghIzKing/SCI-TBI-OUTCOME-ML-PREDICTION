@@ -110,6 +110,11 @@ fold_gain_df['mean_gain'] = fold_gain_df.drop(columns=['features']).mean(axis=1)
 fold_gain_df_sorted = fold_gain_df.sort_values(by='mean_gain', ascending=False)
 total_gain = fold_gain_df_sorted['mean_gain'].sum()
 fold_gain_df_sorted['cumulative_gain'] = fold_gain_df_sorted['mean_gain'].cumsum() / total_gain
+
+print("Saving Gain Tables For All Features")
+fold_gain_df.to_csv("All_Feature_Gain.csv", index=False)
+fold_gain_df_sorted.to_csv("All_Feature_Cumulative_Gain.csv", index=False)
+
 print("Sorted cumsums for all features:", fold_gain_df_sorted)
 selected_features = fold_gain_df_sorted[fold_gain_df_sorted['cumulative_gain'] <= 0.95]['features'].tolist()
 print("Selected Features:", selected_features)
@@ -164,6 +169,7 @@ print("Saving Gain Table:")
 feat_imp_df.to_csv("Gain_Table3.csv", index=False)
 
 # PREDICTING WITH FINAL MODEL
+print("Making Predictions With Final Model:")
 y_train_pred = init_lgbm_model.predict(x_train)
 y_test_pred = init_lgbm_model.predict(x_test)
 
